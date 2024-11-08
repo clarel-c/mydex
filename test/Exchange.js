@@ -6,7 +6,8 @@ const weiValue = function (num) {
 }
 
 describe("Exchange Contract", function () {
-    let accounts, deployer, feeAccount, exchange, user1, token1, token2, transaction, transactionReceipt
+    let accounts, exchange, token1, token2, transaction, transactionReceipt
+    let deployer, feeAccount, user1, user2
     const feePercent = 1
 
     beforeEach(async function () {
@@ -14,6 +15,7 @@ describe("Exchange Contract", function () {
         deployer = accounts[0]
         feeAccount = accounts[1]
         user1 = accounts[2]
+        user2 = accounts[3]
 
         const Exchange = await ethers.getContractFactory("Exchange")
         exchange = await Exchange.deploy(feeAccount.address, feePercent)
@@ -126,14 +128,62 @@ describe("Exchange Contract", function () {
             expect(transactionReceipt.events[0].args.tokenSell).equal(token1.address)
             expect(transactionReceipt.events[0].args.amountSell).to.equal(weiValue(100))
             expect(transactionReceipt.events[0].args.timestamp).to.equal(timestamp)
-        })  
-        
+        })
+
         it("rejects orders when user has insufficient balance", async function () {
             await expect(exchange.connect(user1).makeOrder(token2.address, weiValue(14002), token1.address, weiValue(7001))).to.be.reverted
             await expect(exchange.connect(user1).makeOrder(token2.address, weiValue(14000), token1.address, weiValue(7000))).not.to.be.reverted
         })
+
+        it("cancels existing orders from the rightful originator of the order", async function () {
+            transaction = await exchange.connect(user1).cancelOrder(1)
+            await transaction.wait()
+
+            // The cancel order should not be reverted if called by user 1, since the latter created it
+            await expect(exchange.connect(user1).cancelOrder(1)).not.to.be.reverted
+
+            // The cancel orders should be reverted since they do not even exist.
+            await expect(exchange.connect(user1).cancelOrder(0)).to.be.reverted
+            await expect(exchange.connect(user1).cancelOrder(2)).to.be.reverted
+
+            // The cancel orders should be reverted since someone else than the originator is calling the function
+            await expect(exchange.connect(user2).cancelOrder(1)).to.be.reverted
+
+            // The order is marked as cancelled
+            expect(await exchange.connect(user1).ordersCancelled(1)).to.equal(true)
+        })
+
+        it("emits a cancel event when an order is cancelled", async function () {
+
+            // The next two lines are only to retrieve the timestamp when the first order was made.
+            const firstOrder = await exchange.connect(user1).orders(1)
+            const timestamp = firstOrder.timestamp
+
+            transaction = await exchange.connect(user1).cancelOrder(1)
+            transactionReceipt = await transaction.wait()
+
+            expect(transactionReceipt.events[0].event).to.equal("Cancel")
+            expect(transactionReceipt.events[0].args.id).to.equal(1)
+            expect(transactionReceipt.events[0].args.user).to.equal(user1.address)
+            expect(transactionReceipt.events[0].args.tokenBuy).equal(token2.address)
+            expect(transactionReceipt.events[0].args.amountBuy).to.equal(weiValue(200))
+            expect(transactionReceipt.events[0].args.tokenSell).equal(token1.address)
+            expect(transactionReceipt.events[0].args.amountSell).to.equal(weiValue(100))
+            // The cancel is expected at least to be after the order is made
+            expect(transactionReceipt.events[0].args.timestamp).to.at.least(timestamp)
+        })
     })
 })
+
+
+
+
+
+
+
+
+
+
 
 
 

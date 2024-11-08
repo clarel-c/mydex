@@ -11,7 +11,7 @@ contract Exchange {
 
     mapping(address => mapping(address => uint256)) public tokensBalance;
     mapping(uint256 => _Order) public orders;
-
+    mapping(uint256 => bool) public ordersCancelled;
     event Deposit(
         address _token,
         address _user,
@@ -26,6 +26,16 @@ contract Exchange {
     );
 
     event Order(
+        uint256 id,
+        address user,
+        address tokenBuy,
+        uint256 amountBuy,
+        address tokenSell,
+        uint256 amountSell,
+        uint256 timestamp
+    );
+
+    event Cancel(
         uint256 id,
         address user,
         address tokenBuy,
@@ -114,9 +124,29 @@ contract Exchange {
             _amountBuy,
             _tokenSell,
             _amountSell,
-            block.timestamp           
+            block.timestamp
+        );
+    }
+
+    function cancelOrder(uint _id) public {
+        // 1. require that _id exists (a user cannot cancel a non-existant order)
+        require(_id >= 1 && _id <= ordersCounter);
+        // 2. require that the caller of cancelOrder is also the one who created the order
+        require(msg.sender == orders[_id].user);
+        // 3. Bring in an instance of the order for ease of manipulation
+        _Order storage _order = orders[_id];
+        // 4. cancel the order using the ordersCancelled mapping
+        ordersCancelled[_id] = true;
+        // 5. Emit a Cancel event
+        emit Cancel(
+            _id,
+            msg.sender,
+            _order.tokenBuy,
+            _order.amountBuy,
+            _order.tokenSell,
+            _order.amountSell,
+            block.timestamp
         );
     }
 }
-
 
