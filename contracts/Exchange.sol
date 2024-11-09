@@ -12,6 +12,8 @@ contract Exchange {
     mapping(address => mapping(address => uint256)) public tokensBalance;
     mapping(uint256 => _Order) public orders;
     mapping(uint256 => bool) public ordersCancelled;
+    mapping(uint256 => bool) public ordersFilled;
+
     event Deposit(
         address _token,
         address _user,
@@ -42,6 +44,17 @@ contract Exchange {
         uint256 amountBuy,
         address tokenSell,
         uint256 amountSell,
+        uint256 timestamp
+    );
+
+    event Trade(
+        uint256 id,
+        address executor,
+        address tokenBuy,
+        uint256 amountBuy,
+        address tokenSell,
+        uint256 amountSell,
+        address initiator,
         uint256 timestamp
     );
 
@@ -148,5 +161,45 @@ contract Exchange {
             block.timestamp
         );
     }
+
+    function fillOrder(uint256 _id) public {
+        // require that the order is valid
+        require(_id>=1 && _id<=ordersCounter);
+        // require that the order has not been cancelled
+        require(ordersCancelled[_id] == false);
+        // require that the order has not been filled already
+        require(ordersFilled[_id] == false);
+
+        // 1. Fetch the order
+        _Order storage _order = orders[_id];
+        // 2. Calculate the fee Amount
+        uint256 feeAmount = (feePercent * _order.amountBuy) / 100;
+        // 3. Execute the order for the buyer (i.e. the one making the order)
+        tokensBalance[_order.tokenBuy][_order.user] += _order.amountBuy;
+        tokensBalance[_order.tokenSell][_order.user] -= _order.amountSell;
+        // 4. Execute the order for the seller (i.e. the one filling the order)
+        tokensBalance[_order.tokenBuy][msg.sender] -= _order.amountBuy;
+        tokensBalance[_order.tokenSell][msg.sender] += _order.amountSell;
+        // 5. Charge fees to the seller
+        tokensBalance[_order.tokenBuy][msg.sender] -= feeAmount;
+        // 6. Credit the feeAccount with the fees
+        tokensBalance[_order.tokenBuy][feeAccount] += feeAmount;
+        // 7. Emit a Trade event (When the order is filled, a trade is executed between the two users)
+
+        ordersFilled[_id] = true;
+
+        emit Trade(
+            _id,
+            msg.sender,
+            _order.tokenBuy,
+            _order.amountBuy,
+            _order.tokenSell,
+            _order.amountSell,
+            _order.user,
+            block.timestamp
+        );
+
+    }
 }
+
 

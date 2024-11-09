@@ -31,6 +31,16 @@ describe("Exchange Contract", function () {
         // 2. Have user1 approve the exchange as a spender for token 1.
         transaction = await token1.connect(user1).approve(exchange.address, weiValue(10000))
         await transaction.wait()
+
+        // 1. Send tokens from the deployer to user2 using the transfer function
+        transaction = await token2.connect(deployer).transfer(user2.address, weiValue(20000))
+        await transaction.wait()
+
+        // 2. Have user2 approve the exchange as a spender for token 2.
+        transaction = await token2.connect(user2).approve(exchange.address, weiValue(10000))
+        await transaction.wait()
+
+
     })
 
     describe("Deployment", function () {
@@ -103,7 +113,7 @@ describe("Exchange Contract", function () {
         })
     })
 
-    describe("Making Orders", async function () {
+    describe("Making and Cancelling Orders", async function () {
 
         beforeEach(async function () {
 
@@ -173,7 +183,103 @@ describe("Exchange Contract", function () {
             expect(transactionReceipt.events[0].args.timestamp).to.at.least(timestamp)
         })
     })
+
+    describe("Filling Orders", async function () {
+        beforeEach(async function () {
+
+            transaction = await exchange.connect(user1).depositToken(token1.address, weiValue(7000))
+            await transaction.wait()
+
+            transaction = await exchange.connect(user2).depositToken(token2.address, weiValue(7000))
+            await transaction.wait()
+
+            transaction = await exchange.connect(user1).makeOrder(token2.address, weiValue(200), token1.address, weiValue(100))
+            await transaction.wait()
+
+            transaction = await exchange.connect(user2).fillOrder(1)
+            transactionReceipt = await transaction.wait()
+        })
+
+        it("executes a trade between two users and charge fees to the seller", async function () {
+            //user1 deposited 7000 token1 and pays 100 token1 to buy 200 token2
+            expect(await exchange.balanceOf(token1.address, user1.address)).to.equal(weiValue(6900))
+
+            //user1 gets 200 token2 when the trade executes with a willing seller of token2
+            expect(await exchange.balanceOf(token2.address, user1.address)).to.equal(weiValue(200))
+
+            //user2 deposits 7000 token2 and pays 100 token2 to buy 100 token1 by filling the order
+            expect(await exchange.balanceOf(token1.address, user2.address)).to.equal(weiValue(100))
+
+            //user2 paid 200 token2 to buy token1, but also pays a fees of 1% of the transfer, i.e. 2 token2
+            //As such, user2 now has 7000 - 200 - 2 = 6798
+            expect(await exchange.balanceOf(token2.address, user2.address)).to.equal(weiValue(6798))
+
+            //The feeAccount has now collected the 1% fee. As such, while still having 0 token1,
+            //the feeAccount will now have 2 token2.
+            expect(await exchange.balanceOf(token1.address, feeAccount.address)).to.equal(weiValue(0))
+            expect(await exchange.balanceOf(token2.address, feeAccount.address)).to.equal(weiValue(2))
+        })
+
+        it("emits a Trade event when a trade is executed", async function () {
+            // The next two lines are only to retrieve the timestamp when the first order was made.
+            const firstOrder = await exchange.connect(user1).orders(1)
+            const timestamp = firstOrder.timestamp
+
+            expect(transactionReceipt.events[0].event).to.equal("Trade")
+            expect(transactionReceipt.events[0].args.id).to.equal(1)
+            expect(transactionReceipt.events[0].args.executor).to.equal(user2.address)
+            expect(transactionReceipt.events[0].args.tokenBuy).equal(token2.address)
+            expect(transactionReceipt.events[0].args.amountBuy).to.equal(weiValue(200))
+            expect(transactionReceipt.events[0].args.tokenSell).equal(token1.address)
+            expect(transactionReceipt.events[0].args.amountSell).to.equal(weiValue(100))
+            expect(transactionReceipt.events[0].args.initiator).to.equal(user1.address)
+            // The trade is expected at least to be after the order is made
+            expect(transactionReceipt.events[0].args.timestamp).to.at.least(timestamp)
+        })
+
+        it("rejects invalid trades", async function () {
+
+            //Remember that order 1 has already been made and filled in the beforeEach
+
+            //user1 makes a second order (order 2) and then cancels that order.
+            transaction = await exchange.connect(user1).makeOrder(token2.address, weiValue(300), token1.address, weiValue(150))
+            await transaction.wait()
+            transaction = await exchange.connect(user1).cancelOrder(2)
+            transactionReceipt = await transaction.wait()
+
+            //user1 makes a third order (order 3)
+            transaction = await exchange.connect(user1).makeOrder(token2.address, weiValue(300), token1.address, weiValue(150))
+            await transaction.wait()
+
+            //user2 cannot fill a non-existant order
+            await expect(exchange.connect(user2).fillOrder(0)).to.be.reverted
+
+            //user2 cannot fill a cancelled order
+            await expect(exchange.connect(user2).fillOrder(2)).to.be.reverted
+
+            //user2 can however fill order 3, since the latter is valid and has not been filled yet.
+            await expect(exchange.connect(user2).fillOrder(3)).not.to.be.reverted
+        })
+    })
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
