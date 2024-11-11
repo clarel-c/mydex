@@ -15,7 +15,6 @@ async function main() {
   const { chainId } = await ethers.provider.getNetwork()
   console.log(`The chain Id is ${chainId}`)
 
-
   // 1. Fetch the deployed contracts
   const MBTBA = await ethers.getContractAt("Token", config[chainId].MBTBA.address)
   console.log(`MBTBA Token fetched: ${MBTBA.address}`)
