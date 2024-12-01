@@ -1,32 +1,32 @@
 import { useEffect } from "react"
-import { ethers } from "ethers"
+import { useDispatch } from "react-redux"
 import config from "../config.json"
-import TOKEN_ABI from "../ABIs/Token.json"
 import "../App.css"
 
+import { loadProvider, loadNetwork, loadAccount, loadToken } from "../store/interactions"
+
 function App() {
+  const dispatch = useDispatch()
 
   const loadBlockchainData = async function () {
-    const accounts = await window.ethereum.request({method:"eth_requestAccounts"})
-    console.log(accounts[0])
+    //Load the caller account
+    await loadAccount(dispatch)
 
     //Connect ethers to the Blockchain
-    const provider = new ethers.providers.Web3Provider(window.ethereum)
+    const provider = loadProvider(dispatch)
 
     //Get the Chain ID
-    const network = await provider.getNetwork()
-    const chainId = network.chainId
+    const chainId = await loadNetwork(provider, dispatch)
 
     //Get an instance of the MBTBA Token contract 
     const MBTBA = config[chainId].MBTBA
-    const MBTBAToken = new ethers.Contract(MBTBA.address, TOKEN_ABI, provider)
-    console.log(await MBTBAToken.name())
+    await loadToken(provider, MBTBA.address, dispatch)
   }
 
   useEffect( () => {
     loadBlockchainData()
   })
-
+  
   return (
     <div>
 
@@ -55,6 +55,7 @@ function App() {
     </div>
   );
 }
+
 
 export default App;
 
