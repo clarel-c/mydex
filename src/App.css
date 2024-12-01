@@ -1,38 +1,109 @@
-.App {
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&display=swap');
+
+:root {
+  --clr-primary: #0f192c;
+  --clr-secondary: #14223d;
+  --clr-neutral: #767F92;
+
+  --clr-white: #F1F2F9;
+  --clr-blue: #2187D0;
+  --clr-red: #F45353;
+  --clr-green: #25CE8F;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* ------------------------------------------------------ */
+
+html {
+  font-family: "Oxygen";
+  color: var(--clr-white);
 }
 
-.App-header {
-  background-color: #282c34;
+main {
   min-height: 100vh;
+}
+
+/* ------------------------------------------------------ */
+
+/* -- Text ---------------------------------------------- */
+
+h1 {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 500;
+}
+
+h2 {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: flex-start;
+  align-items: flex-end;
+
+  margin: 0.375em 0;
+
+  font-weight: 500;
+  font-size: clamp(0.95rem, 2vw, 1.10rem);
 }
 
-.App-link {
-  color: #61dafb;
+p,
+small {
+  font-weight: 400;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+small {
+  color: var(--clr-neutral);
 }
+
+/* ------------------------------------------------------ */
+/* -- Display ------------------------------------------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+}
+
+/* ------------------------------------------------------ */
+
+/* ------------------------------------------------------ */
+
+.exchange__section--left {
+  background: var(--clr-secondary);
+  padding: 2em;
+  grid-column-start: 1;
+  grid-column-end: 4;
+}
+
+.exchange__section--right {
+  background: var(--clr-primary);
+  padding: 0.25em 0.75em 0;
+  grid-column-start: 4;
+  grid-column-end: 13;
+}
+/* ------------------------------------------------------ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* .exchange__header--brand {
+  grid-column-start: 1;
+  grid-column-end: 4;
+}
+
+.exchange__header--networks {
+  grid-column-start: 4;
+  grid-column-end: 5;
+} */
