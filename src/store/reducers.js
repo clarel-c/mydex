@@ -16,24 +16,64 @@ export const providerReducer = function (state = {}, action) {
                 ...state,
                 caller: action.caller
             }
-
-        default:
-            return state
-    }
-}
-
-export const tokensReducer = function (state = {loaded: false, contract: null}, action) {
-    switch (action.type) {
-        case "token_loaded":
+        case "eth_balance_loaded":
             return {
                 ...state,
-                loaded: true,
-                contract: action.token,
-                symbol: action.symbol
+                balance: action.balance
             }
 
         default:
             return state
     }
 }
+
+const initialState = { loaded: false, contracts: [], symbols: [] }
+
+export const tokensReducer = function (state = initialState, action) {
+    switch (action.type) {
+        case "token_1_loaded":
+            return {
+                ...state,
+                loaded: true,
+                contracts: [...state.contracts, action.token0],
+                symbols: [...state.symbols, action.symbol]
+            }
+
+        case "token_2_loaded":
+            return {
+                ...state,
+                loaded: true,
+                contracts: [...state.contracts, action.token1],
+                symbols: [...state.symbols, action.symbol]
+            }
+
+        default:
+            return state
+    }
+}
+
+export const exchangeReducer = function (state = { loaded: false, contract: {} }, action) {
+    switch (action.type) {
+        case "exchange_loaded":
+            return {
+                ...state,
+                loaded: true,
+                contract: action.exchange
+            }
+
+        default:
+            return state
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 

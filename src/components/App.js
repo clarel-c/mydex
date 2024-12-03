@@ -3,30 +3,35 @@ import { useDispatch } from "react-redux"
 import config from "../config.json"
 import "../App.css"
 
-import { loadProvider, loadNetwork, loadAccount, loadToken } from "../store/interactions"
+import { loadProvider, loadNetwork, loadAccount, loadTokens, loadExchange } from "../store/interactions"
 
 function App() {
   const dispatch = useDispatch()
 
   const loadBlockchainData = async function () {
-    //Load the caller account
-    await loadAccount(dispatch)
-
     //Connect ethers to the Blockchain
     const provider = loadProvider(dispatch)
+
+    //Load the caller account
+    await loadAccount(provider, dispatch)
 
     //Get the Chain ID
     const chainId = await loadNetwork(provider, dispatch)
 
-    //Get an instance of the MBTBA Token contract 
+    //Get an instance of the MBTBA Token contract and UTMC Token contract
     const MBTBA = config[chainId].MBTBA
-    await loadToken(provider, MBTBA.address, dispatch)
+    const UTMC = config[chainId].UTMC
+    await loadTokens(provider, [MBTBA.address, UTMC.address], dispatch)
+
+    //Load the exchange contract
+    const exchange = config[chainId].exchange
+    await loadExchange(provider, exchange.address, dispatch)
   }
 
-  useEffect( () => {
+  useEffect(() => {
     loadBlockchainData()
   })
-  
+
   return (
     <div>
 
