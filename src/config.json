@@ -11,7 +11,25 @@
         },
         "LRNC": {
             "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-        }      
+        },
+        "explorerURL": "#"
+    },
+    "11155111": {
+        "exchange": {
+            "address": "0x9b37F1Cb8695E04457197aE15784a9E063AA247D"
+        },
+        "MBTBA": {
+            "address": "0x18b0363eE9a49997DaC604693497A71d8D13210f"
+        },
+        "UTMC": {
+            "address": "0x6f8629ec1cF3726D70938d0D2dD467d52391240A"
+        },
+        "LRNC": {
+            "address": "0xF02b433cB273376d655c2b5eF3C6318592428c7a"
+        },
+        "explorerURL": "https://sepolia.etherscan.io"     
     }
 }
+
+
 

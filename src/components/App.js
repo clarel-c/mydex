@@ -5,6 +5,8 @@ import "../App.css"
 
 import { loadProvider, loadNetwork, loadAccount, loadTokens, loadExchange } from "../store/interactions"
 
+import Navbar from "./Navbar"
+
 function App() {
   const dispatch = useDispatch()
 
@@ -12,11 +14,19 @@ function App() {
     //Connect ethers to the Blockchain
     const provider = loadProvider(dispatch)
 
-    //Load the caller account
-    await loadAccount(provider, dispatch)
+    //Load the caller account when changed
+    window.ethereum.on("accountsChanged", async function() {
+      await loadAccount(provider, dispatch)
+    })
 
     //Get the Chain ID
     const chainId = await loadNetwork(provider, dispatch)
+
+    //Reload the page when the network changes
+    window.ethereum.on("chainChanged", async function() {
+      window.location.reload()
+    })   
+
 
     //Get an instance of the MBTBA Token contract and UTMC Token contract
     const MBTBA = config[chainId].MBTBA
@@ -35,7 +45,7 @@ function App() {
   return (
     <div>
 
-      {/* Navbar */}
+      <Navbar/>
 
       <main className='grid'>
         <section className='exchange__section--left grid'>
