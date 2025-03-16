@@ -12,7 +12,8 @@
         "LRNC": {
             "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
         },
-        "explorerURL": "#"
+        "explorerURL": "#",
+        "symbol": "ETH"
     },
     "11155111": {
         "exchange": {
@@ -27,7 +28,24 @@
         "LRNC": {
             "address": "0xF02b433cB273376d655c2b5eF3C6318592428c7a"
         },
-        "explorerURL": "https://sepolia.etherscan.io"     
+        "explorerURL": "https://sepolia.etherscan.io",
+        "symbol": "SepETH" 
+    },
+    "80002": {
+        "exchange": {
+            "address": "0x61ee946d09F82A13E7aaf3a160Ee43E1004C1B06"
+        },
+        "MBTBA": {
+            "address": "0xF34c31110eD066f620e835537bEC1A2b0a4dEB20"
+        },
+        "UTMC": {
+            "address": "0xC9f31Feee68D55d2D4cf0d2b875b87afC7943F3c"
+        },
+        "LRNC": {
+            "address": "0x004420fF808DCc37d1A73d975d1bA764E1296EDc"
+        },
+        "explorerURL": "https://amoy.polygonscan.com/",
+        "symbol": "POL"  
     }
 }
 

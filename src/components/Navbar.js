@@ -38,15 +38,16 @@ const Navbar = function () {
                         <option value="0" disabled>Select Network</option>
                         <option value="0x7A69">Localhost</option>
                         <option value="0xaa36a7">Sepolia</option>
+                        <option value="0x13882">Amoy</option>
                     </select>
                 }
             </div>
 
             <div className='exchange__header--account flex'>
                 {
-                    balance ? <p><small>My Balance</small>{parseFloat(balance).toFixed(4) + "ETH"}</p>
+                    balance ? <p><small>My Balance</small>{parseFloat(balance).toFixed(4)} {config[chainId].symbol}</p>
                         :
-                        <p><small>My Balance</small>0 ETH</p>
+                        <p><small>My Balance</small>0</p>
                 }
 
                 {

@@ -9,11 +9,15 @@ module.exports = {
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545"
-    }
-  },
-  sepolia:{
-    url:`https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    accounts: privateKeys.split(",")
+    },
+    sepolia:{
+      url:`https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts: privateKeys.split(","),
+    },
+    amoy:{
+      url:`https://polygon-amoy.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts: privateKeys.split(","),
+    },
   },
 };
 
