@@ -1,3 +1,5 @@
+import { clear } from "@testing-library/user-event/dist/clear"
+
 export const providerReducer = function (state = {}, action) {
     switch (action.type) {
         case "provider_loaded":
@@ -35,8 +37,8 @@ export const tokensReducer = function (state = initialState, action) {
             return {
                 ...state,
                 loaded: true,
-                contracts: [...state.contracts, action.token0],
-                symbols: [...state.symbols, action.symbol]
+                contracts: [action.token0],
+                symbols: [action.symbol]
             }
 
         case "token_2_loaded":

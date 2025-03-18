@@ -36,7 +36,7 @@ const Navbar = function () {
                         defaultValue={config[chainId] ? `0x${chainId.toString(16)}` : "0"}
                         onChange={networkHandler}>
                         <option value="0" disabled>Select Network</option>
-                        <option value="0x7A69">Localhost</option>
+                        <option value="0x7A69" disabled>Localhost</option>
                         <option value="0xaa36a7">Sepolia</option>
                         <option value="0x13882">Amoy</option>
                     </select>
