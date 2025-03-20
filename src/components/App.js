@@ -3,10 +3,11 @@ import { useDispatch } from "react-redux"
 import config from "../config.json"
 import "../App.css"
 
-import { loadProvider, loadNetwork, loadAccount, loadTokens, loadExchange } from "../store/interactions"
+import { loadProvider, loadNetwork, loadAccount, loadTokens, loadExchange , subscribeToEvents} from "../store/interactions"
 
 import Navbar from "./Navbar"
 import Markets from "./Markets"
+import Balance from "./Balance"
 
 function App() {
   const dispatch = useDispatch()
@@ -16,7 +17,7 @@ function App() {
     const provider = loadProvider(dispatch)
 
     //Load the caller account when changed
-    window.ethereum.on("accountsChanged", async function() {
+    window.ethereum.on("accountsChanged", async function () {
       await loadAccount(provider, dispatch)
     })
 
@@ -24,9 +25,9 @@ function App() {
     const chainId = await loadNetwork(provider, dispatch)
 
     //Reload the page when the network changes
-    window.ethereum.on("chainChanged", async function() {
+    window.ethereum.on("chainChanged", async function () {
       window.location.reload()
-    })   
+    })
 
 
     //Get an instance of the MBTBA Token contract and UTMC Token contract
@@ -36,7 +37,10 @@ function App() {
 
     //Load the exchange contract
     const exchange = config[chainId].exchange
-    await loadExchange(provider, exchange.address, dispatch)
+    const exchangeLoaded = await loadExchange(provider, exchange.address, dispatch)  
+
+    // Listen for Deposit events
+    subscribeToEvents(exchangeLoaded, dispatch) 
   }
 
   useEffect(() => {
@@ -46,13 +50,13 @@ function App() {
   return (
     <div>
 
-      <Navbar/>
+      <Navbar />
 
       <main className='grid'>
         <section className='exchange__section--left grid'>
 
-          <Markets/>
-          {/* Balance */}
+          <Markets />
+          <Balance />
           {/* Order */}
 
         </section>

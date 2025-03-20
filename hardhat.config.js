@@ -18,6 +18,11 @@ module.exports = {
       url:`https://polygon-amoy.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: privateKeys.split(","),
     },
+    apothem:{
+      url:`https://rpc.apothem.network`,
+      chainId: 51,
+      accounts: privateKeys.split(","),
+    },
   },
 };
 

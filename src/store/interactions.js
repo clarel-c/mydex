@@ -53,6 +53,56 @@ export const loadExchange = async function(provider, address, dispatch) {
     return exchange
 }
 
+export const subscribeToEvents = (exchange, dispatch) => {
+    exchange.on("Deposit", (_token, _user, _amount, _balance, event) => {
+        dispatch({type: "transfer_success", event})
+    })
+}
+
+
+// Load user balances (wallet and exchange balances)
+export const loadBalances = async (exchange, token0, token1, caller, dispatch) => {
+    let balance0, balance1, exchange_balance0, exchange_balance1
+
+    balance0 = await token0.balanceOf(caller)
+    balance0 = ethers.utils.formatUnits(balance0, 18)
+    balance1 = await token1.balanceOf(caller)
+    balance1 = ethers.utils.formatUnits(balance1, 18)
+    exchange_balance0 = await exchange.balanceOf(token0.address, caller)
+    exchange_balance0 = ethers.utils.formatUnits(exchange_balance0, 18)
+    exchange_balance1 = await exchange.balanceOf(token1.address, caller)
+    exchange_balance1 = ethers.utils.formatUnits(exchange_balance1, 18)
+
+    dispatch({type: "balances_loaded", balance0, balance1, exchange_balance0, exchange_balance1})
+}
+
+// tranfer tokens (deposits and withdrawals)
+export const transferTokens = async (provider, exchange, transferType, token, amount, dispatch) => {
+    let transaction
+
+    dispatch({type: "transfer_request"})
+
+    try{
+        const signer = await provider.getSigner()
+        const amountToTransfer = ethers.utils.parseUnits(amount, 18)
+    
+        // Approve the exchange to transfer tokens
+        transaction = await token.connect(signer).approve(exchange.address, amountToTransfer)
+        await transaction.wait()
+    
+        // Deposit tokens
+        transaction = await exchange.connect(signer).depositToken(token.address, amountToTransfer)
+        await transaction.wait()
+    } catch(error) {
+        dispatch({type: "transfer_failed"})
+    }
+}
+
+
+
+
+
+
 
 
 

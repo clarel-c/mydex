@@ -44,8 +44,24 @@
         "LRNC": {
             "address": "0x004420fF808DCc37d1A73d975d1bA764E1296EDc"
         },
-        "explorerURL": "https://amoy.polygonscan.com/",
+        "explorerURL": "https://amoy.polygonscan.com",
         "symbol": "POL"  
+    },
+    "51": {
+        "exchange": {
+            "address": "0xdf6a8473684552c95f518eD767b9fA9f4DCa3619"
+        },
+        "MBTBA": {
+            "address": "0xC9f31Feee68D55d2D4cf0d2b875b87afC7943F3c"
+        },
+        "UTMC": {
+            "address": "0x004420fF808DCc37d1A73d975d1bA764E1296EDc"
+        },
+        "LRNC": {
+            "address": "0x61ee946d09F82A13E7aaf3a160Ee43E1004C1B06"
+        },
+        "explorerURL": "https://explorer.apothem.network",
+        "symbol": "XDC"  
     }
 }
 

@@ -39,6 +39,7 @@ const Navbar = function () {
                         <option value="0x7A69" disabled>Localhost</option>
                         <option value="0xaa36a7">Sepolia</option>
                         <option value="0x13882">Amoy</option>
+                        <option value="0x33">Apothem</option>
                     </select>
                 }
             </div>
