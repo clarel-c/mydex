@@ -60,6 +60,10 @@ export const subscribeToEvents = (exchange, dispatch) => {
     exchange.on("Withdraw", (_token, _user, _amount, _balance, event) => {
         dispatch({type: "transfer_success", event})
     })
+    exchange.on("Order", (_id, _user, _tokenBuy, _amountBuy, _tokenSell, _amountSell, _timestamp, event) => {
+        const order = event.args
+        dispatch({type: "new_order_success", order, event})
+    })
 }
 
 
@@ -106,6 +110,50 @@ export const transferTokens = async (provider, exchange, transferType, token, am
         dispatch({type: "transfer_failed"})
     }
 }
+
+export const makeBuyOrder = async (provider, exchange, token0, token1, amount, price, dispatch) => {
+    let transaction
+
+    dispatch({type: "new_order_request"})
+
+    const tokenBuy = token0.address
+    const amountBuy = ethers.utils.parseUnits(amount, 18) //
+    const tokenSell = token1.address
+    const amountSell = ethers.utils.parseUnits((amount * price).toString(), 18) 
+
+    try{
+        const signer = await provider.getSigner()
+        transaction = await exchange.connect(signer).makeOrder(tokenBuy, amountBuy, tokenSell, amountSell)
+        await transaction.wait()
+    }
+    catch(error) {
+        dispatch({type: "new_order_failed"})
+    }
+}
+
+export const makeSellOrder = async (provider, exchange, token0, token1, amount, price, dispatch) => {
+    let transaction
+
+    dispatch({type: "new_order_request"})
+
+    const tokenBuy = token1.address
+    const amountBuy = ethers.utils.parseUnits((amount * price).toString(), 18)
+    const tokenSell = token0.address
+    const amountSell = ethers.utils.parseUnits(amount, 18) 
+
+    try{
+        const signer = await provider.getSigner()
+        transaction = await exchange.connect(signer).makeOrder(tokenBuy, amountBuy, tokenSell, amountSell)
+        await transaction.wait()
+    }
+    catch(error) {
+        dispatch({type: "new_order_failed"})
+    }
+}
+
+
+
+
 
 
 

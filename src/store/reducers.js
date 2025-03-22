@@ -58,6 +58,9 @@ const defaultExchangeState = {
     transaction: {
         isSuccessful: false,        
     },
+    allOrders: {
+        data: []
+    },
     events: []
 }
 
@@ -100,6 +103,39 @@ export const exchangeReducer = function (state = defaultExchangeState, action) {
                     isError: true
                 },
                 transferInProgress: false,
+            }
+        case "new_order_request":
+            return {
+                ...state,
+                transaction: {
+                    transactionType: "New Order",
+                    isPending: true,
+                    isSuccessful: false,
+                }
+            }
+        case "new_order_failed":
+            return {
+                ...state,
+                transaction: {
+                    transactionType: "New Order",
+                    isPending: false,
+                    isSuccessful: false,
+                    isError: true
+                }
+            }
+        case "new_order_success":
+            return {
+                ...state,
+                allOrders:{
+                    ...state.allOrders,
+                    data: [...state.allOrders.data, action.order]
+                },
+                transaction: {
+                    transactionType: "New Order",
+                    isPending: false,
+                    isSuccessful: true,
+                },
+                events: [action.event, ...state.events]
             }
 
         default:
