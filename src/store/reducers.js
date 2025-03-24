@@ -56,7 +56,7 @@ const defaultExchangeState = {
     loaded: false,
     contract: {},
     transaction: {
-        isSuccessful: false,        
+        isSuccessful: false,
     },
     allOrders: {
         data: []
@@ -71,6 +71,30 @@ export const exchangeReducer = function (state = defaultExchangeState, action) {
                 ...state,
                 loaded: true,
                 contract: action.exchange,
+            }
+        case "all_orders_loaded":
+            return {
+                ...state,
+                allOrders: {
+                    loaded: true,
+                    data: action.allOrders
+                }
+            }
+        case "cancelled_orders_loaded":
+            return {
+                ...state,
+                cancelledOrders: {
+                    loaded: true,
+                    data: action.cancelledOrders
+                }
+            }
+        case "filled_orders_loaded":
+            return {
+                ...state,
+                filledOrders: {
+                    loaded: true,
+                    data: action.filledOrders
+                }
             }
         case "transfer_request":
             return {
@@ -124,11 +148,21 @@ export const exchangeReducer = function (state = defaultExchangeState, action) {
                 }
             }
         case "new_order_success":
+            // Find if order already exists
+            const index = state.allOrders.data.findIndex(order => order.id.toString() === action.order.id.toString())
+
+            // Add order only if it doesn't exist
+            let data;
+            if (index === -1) { // Order NOT found, safe to add
+                data = [...state.allOrders.data, action.order];
+            } else { // Order already exists
+                data = state.allOrders.data;
+            }
             return {
                 ...state,
-                allOrders:{
+                allOrders: {
                     ...state.allOrders,
-                    data: [...state.allOrders.data, action.order]
+                    data: data
                 },
                 transaction: {
                     transactionType: "New Order",
