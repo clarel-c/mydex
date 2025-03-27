@@ -4,6 +4,8 @@ import EXCHANGE_ABI from "../ABIs/Exchange.json"
 
 export const loadProvider = function(dispatch) {
     const provider = new ethers.providers.Web3Provider(window.ethereum)
+    // Update to use your local node
+    //const provider = new ethers.providers.JsonRpcProvider("http://192.168.198.129:8545");
     dispatch({type:"provider_loaded", connection: provider})
 
     return provider
