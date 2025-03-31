@@ -5,7 +5,7 @@ import EXCHANGE_ABI from "../ABIs/Exchange.json"
 export const loadProvider = function(dispatch) {
     const provider = new ethers.providers.Web3Provider(window.ethereum)
     // Update to use your local node
-    //const provider = new ethers.providers.JsonRpcProvider("http://192.168.198.129:8545");
+    //const provider = new ethers.providers.JsonRpcProvider("http://192.168.100.42:8545");
     dispatch({type:"provider_loaded", connection: provider})
 
     return provider
@@ -35,7 +35,6 @@ export const loadTokens = async function(provider, addresses, dispatch) {
     let tokens = [], symbol, token0, token1
 
     tokens[0] = new ethers.Contract(addresses[0], TOKEN_ABI, provider)
-    console.log(tokens[0])
     symbol = await tokens[0].symbol()
     token0 = tokens[0]
     dispatch({type: "token_1_loaded", token0, symbol})
@@ -114,6 +113,7 @@ export const transferTokens = async (provider, exchange, transferType, token, am
 }
 
 export const makeBuyOrder = async (provider, exchange, token0, token1, amount, price, dispatch) => {
+
     let transaction
 
     dispatch({type: "new_order_request"})
@@ -158,17 +158,17 @@ export const loadAllOrders = async (provider, exchange, dispatch) => {
     const block = await provider.getBlockNumber()
 
     // Fetch cancelled orders with the "Cancel" event
-    const cancelStream = await exchange.queryFilter('Cancel', 0, block)
+    const cancelStream = await exchange.queryFilter('Cancel', block - 300000, block)
     const cancelledOrders = cancelStream.map(event => event.args)
     dispatch({type: "cancelled_orders_loaded", cancelledOrders})
 
     // Fetch filled orders with the "Trade" event
-    const tradeStream = await exchange.queryFilter('Trade', 0, block)
+    const tradeStream = await exchange.queryFilter('Trade', block - 300000, block)
     const filledOrders = tradeStream.map(event => event.args)
     dispatch({type: "filled_orders_loaded", filledOrders})
 
     // Fetch all orders with the "Order" event
-    const orderStream = await exchange.queryFilter('Order', 0, block)
+    const orderStream = await exchange.queryFilter('Order', block - 300000, block)
     const allOrders = orderStream.map(event => event.args)
 
     dispatch({type: "all_orders_loaded", allOrders})

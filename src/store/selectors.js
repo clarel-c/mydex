@@ -125,13 +125,13 @@ export const priceChartSelector = createSelector(
     );
 
     orders = filteredOrders.map((order) => decorateOrder(order, token0, token1))
-    
+
     orders.sort((a, b) => a.timestamp - b.timestamp);
     //console.log(orders)
 
-    const lastOrder = orders[orders.length -1]
+    const lastOrder = orders[orders.length - 1]
     const lastPrice = get(lastOrder, "tokenPrice", 0)
-    const secondLastOrder = orders[orders.length -2]
+    const secondLastOrder = orders[orders.length - 2]
     const secondLastPrice = get(secondLastOrder, "tokenPrice", 0)
     const lastPriceChange = lastPrice >= secondLastPrice ? "up" : "down"
 
@@ -145,6 +145,61 @@ export const priceChartSelector = createSelector(
   }
 );
 
+export const filledOrdersSelector = createSelector(
+  filledOrders,
+  token0,
+  token1,
+  (orders, token0, token1) => {
+    if (!token0 || !token1) { return }
+
+    // Filter orders for the selected token pair
+    const filteredOrders = orders.filter(
+      (order) => (
+        (order.tokenBuy === token0.address && order.tokenSell === token1.address) ||
+        (order.tokenBuy === token1.address && order.tokenSell === token0.address)
+      )
+    );
+
+    orders = filteredOrders
+
+    // Sort orders in ascending order of timestamp
+    orders = orders.sort((a, b) => a.timestamp - b.timestamp)
+
+    orders = decorateFilledOrders(orders, token0, token1)
+
+    // Sort orders in descending order of timestamp for the UI.
+    orders = orders.sort((a, b) => b.timestamp - a.timestamp)
+    return orders
+  }
+);
+
+const decorateFilledOrders = (orders, token0, token1) => {
+  let previousOrder = orders[0]
+
+  return (
+    orders.map((order) => {
+      order = decorateOrder(order, token0, token1)
+      order = decorateFilledOrder(order, previousOrder, order.id)
+      previousOrder = order
+      return order
+    })
+  )
+}
+
+const decorateFilledOrder = (order, previousOrder, orderId) => {
+  if(previousOrder.id === orderId)
+  {
+    return ({
+      ...order,
+      tokenPriceClass: GREEN
+    })
+  }
+  else return ({
+    ...order,
+    tokenPriceClass: previousOrder.tokenPrice <= order.tokenPrice ? GREEN : RED
+  })
+}
+
 const buildGraphData = (orders) => {
   // Group the order by the hour.
   orders = groupBy(orders, (order) => moment.unix(order.timestamp).startOf('hour').format())
@@ -153,11 +208,11 @@ const buildGraphData = (orders) => {
 
   // Build the data for each candlestick
   const graphData = hours.map((hour) => {
-  const group = orders[hour]
-  const open = group[0].tokenPrice
-  const high = maxBy(group, "tokenPrice").tokenPrice
-  const low = minBy(group, "tokenPrice").tokenPrice
-  const close = group[group.length - 1].tokenPrice
+    const group = orders[hour]
+    const open = group[0].tokenPrice
+    const high = maxBy(group, "tokenPrice").tokenPrice
+    const low = minBy(group, "tokenPrice").tokenPrice
+    const close = group[group.length - 1].tokenPrice
 
     return ({
       x: new Date(hour),
