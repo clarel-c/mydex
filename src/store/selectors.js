@@ -11,6 +11,7 @@ const token1 = state => get(state, "tokensReducer.contracts[1]", {})
 const allOrders = state => get(state, "exchangeReducer.allOrders.data", [])
 const cancelledOrders = state => get(state, "exchangeReducer.cancelledOrders.data", [])
 const filledOrders = state => get(state, "exchangeReducer.filledOrders.data", [])
+const caller = state => get(state, "providerReducer.caller")
 
 const decorateOrder = (order, token0, token1) => {
   let token0Amount, token1Amount, tokenPrice
@@ -172,6 +173,50 @@ export const filledOrdersSelector = createSelector(
     return orders
   }
 );
+
+export const myOpenOrdersSelector = createSelector(
+  caller, 
+  openOrders, 
+  token0,
+  token1,
+  (caller, orders, token0, token1) => {
+    if (!token0 || !token1) { return }
+
+    // Filter orders by current account (caller)
+    orders = orders.filter((order) => order.user === caller)
+
+    //Filter by token addresses (done a bit different from other functions in selectors.js)
+    orders = orders.filter((order) => order.tokenBuy === token0.address || order.tokenBuy === token1.address)
+    orders = orders.filter((order) => order.tokenSell === token0.address || order.tokenSell === token1.address)
+
+    orders = decorateMyOpenOrders(orders, token0, token1)
+
+    // Sort orders by date descending
+    orders = orders.sort((a, b) => b.timestamp - a.timestamp)
+
+    return orders
+  }
+);
+
+const decorateMyOpenOrders = (orders, token0, token1) => {
+  return(
+    orders.map((order) => {
+      order = decorateOrder(order, token0, token1)
+      order = decorateMyOpenOrder(order, token0, token1)
+      return (order)
+    })
+  )
+}
+
+const decorateMyOpenOrder = (order, token0, token1) => {
+  let orderType = order.tokenSell === token1.address ? "buy" : "sell"
+  return ({
+    ...order,
+    orderType,
+    orderTypeClass: (orderType === "buy" ? GREEN : RED)
+    }
+  )
+}
 
 const decorateFilledOrders = (orders, token0, token1) => {
   let previousOrder = orders[0]
