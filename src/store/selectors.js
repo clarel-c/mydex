@@ -174,6 +174,65 @@ export const filledOrdersSelector = createSelector(
   }
 );
 
+export const myFilledOrdersSelector = createSelector(
+  caller,
+  filledOrders,
+  token0,
+  token1,
+  (caller, orders, token0, token1) => {
+    if (!token0 || !token1) { return }
+
+    // Filter orders for the selected token pair
+    const filteredOrders = orders.filter(
+      (order) => (
+        (order.tokenBuy === token0.address && order.tokenSell === token1.address) ||
+        (order.tokenBuy === token1.address && order.tokenSell === token0.address)
+      )
+    );
+
+    // Filter by initiator or executioner of the order
+    orders = filteredOrders.filter((order) => (order.initiator === caller) || (order.executor === caller))
+
+    // Sort the orders by date descending 
+    orders = orders.sort((a,b) => b.timestamp - a.timestamp)
+
+    // decorate the orders
+    orders = decorateMyFilledOrders(caller, orders, token0, token1)
+
+    console.log(orders)
+
+    return orders
+  }
+);
+
+const decorateMyFilledOrders = (caller, orders, token0, token1) => {
+  return(
+    orders.map((order) => {
+      order = decorateOrder(order, token0, token1)
+      order = decorateMyFilledOrder(caller, order, token0, token1)
+      return order
+    })
+  )
+}
+
+const decorateMyFilledOrder = (caller, order, token0, token1) => {
+  const myOrder = caller === order.initiator
+
+  let orderType 
+  if(myOrder) {
+    orderType = order.tokenSell === token1.address ? "buy" : "sell"
+  } else {
+    orderType = order.tokenSell === token1.address ? "sell" : "buy"    
+  }
+
+  return ({
+    ...order,
+    orderType,
+    orderClass: (orderType === "buy" ? GREEN : RED),
+    orderSign: (orderType === "buy" ? "+": "-")
+  })
+}
+
 export const myOpenOrdersSelector = createSelector(
   caller, 
   openOrders, 
