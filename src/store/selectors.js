@@ -199,8 +199,6 @@ export const myFilledOrdersSelector = createSelector(
     // decorate the orders
     orders = decorateMyFilledOrders(caller, orders, token0, token1)
 
-    console.log(orders)
-
     return orders
   }
 );

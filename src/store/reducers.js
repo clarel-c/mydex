@@ -80,6 +80,45 @@ export const exchangeReducer = function (state = defaultExchangeState, action) {
                     data: action.allOrders
                 }
             }
+
+        case "cancel_order_request":
+            return {
+                ...state,
+                transaction: {
+                    transactionType: "Cancel Order",
+                    isPending: true,
+                    isSuccessful: false,
+                }
+            }
+            
+        case "cancel_order_failed":
+            return {
+                ...state,
+                transaction: {
+                    transactionType: "Cancel Order",
+                    isPending: false,
+                    isSuccessful: false,
+                    isError: true
+                }
+            }
+        case "cancel_order_success":
+            return {
+                ...state,
+                transaction: {
+                    transactionType: "Cancel Order",
+                    isPending: false,
+                    isSuccessful: true,
+                },
+                cancelledOrders: {
+                    ...state.cancelledOrders,
+                    data: [
+                        ...state.cancelledOrders.data,
+                        action.order
+                    ]
+                },
+                events: [action.event, ...state.events]
+            }
+
         case "cancelled_orders_loaded":
             return {
                 ...state,
