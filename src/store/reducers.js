@@ -59,12 +59,23 @@ const defaultExchangeState = {
         isSuccessful: false,
     },
     allOrders: {
+        loaded: false,
+        data: []
+    },
+    filledOrders: {
+        loaded: false,
+        data: []
+    },
+    cancelledOrders: {
+        loaded: false,
         data: []
     },
     events: []
 }
 
 export const exchangeReducer = function (state = defaultExchangeState, action) {
+    let index, data
+
     switch (action.type) {
         case "exchange_loaded":
             return {
@@ -118,6 +129,50 @@ export const exchangeReducer = function (state = defaultExchangeState, action) {
                 },
                 events: [action.event, ...state.events]
             }
+
+        case "fill_order_request":
+            return {
+                ...state,
+                transaction: {
+                    transactionType: "Fill Order",
+                    isPending: true,
+                    isSuccessful: false,
+                }
+            }
+
+        case "fill_order_failed":
+            return {
+                ...state,
+                transaction: {
+                    transactionType: "Fill Order",
+                    isPending: false,
+                    isSuccessful: false,
+                    isError: true
+                }
+            }
+
+        case "fill_order_success": 
+            // Find if order already exists
+            index = state.filledOrders.data.findIndex(order => order.id.toString() === action.order.id.toString())
+            if(index === -1) { // Order NOT found, safe to add
+                data = [...state.filledOrders.data, action.order];
+            } else {
+                data = state.filledOrders.data;
+            }
+
+            return {
+                ...state,
+                transaction: {
+                    transactionType: "Fill Order",
+                    isPending: false,
+                    isSuccessful: true,
+                },
+                filledOrders: {
+                    ...state.filledOrders,
+                    data
+                },
+                events: [action.event, ...state.events]
+            }     
 
         case "cancelled_orders_loaded":
             return {
@@ -188,10 +243,9 @@ export const exchangeReducer = function (state = defaultExchangeState, action) {
             }
         case "new_order_success":
             // Find if order already exists
-            const index = state.allOrders.data.findIndex(order => order.id.toString() === action.order.id.toString())
+            index = state.allOrders.data.findIndex(order => order.id.toString() === action.order.id.toString())
 
             // Add order only if it doesn't exist
-            let data;
             if (index === -1) { // Order NOT found, safe to add
                 data = [...state.allOrders.data, action.order];
             } else { // Order already exists
