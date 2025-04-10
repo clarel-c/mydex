@@ -12,6 +12,29 @@ const allOrders = state => get(state, "exchangeReducer.allOrders.data", [])
 const cancelledOrders = state => get(state, "exchangeReducer.cancelledOrders.data", [])
 const filledOrders = state => get(state, "exchangeReducer.filledOrders.data", [])
 const caller = state => get(state, "providerReducer.caller")
+const events = state => get(state, "exchangeReducer.events")
+
+export const myEventsSelector = createSelector(
+  caller, 
+  events, 
+  (caller, events) => {
+    if (!events) return [];
+    
+    events = events.filter((event) => {
+      if (!event || !event.args) return false;
+      
+      return (
+        (event.args.user === caller) || 
+        (event.args.executor === caller) ||
+        (event.args._user === caller)
+      );
+    });
+    
+    console.log(events);
+    return events;
+  }
+);
+
 
 const decorateOrder = (order, token0, token1) => {
   let token0Amount, token1Amount, tokenPrice
