@@ -15,7 +15,7 @@ const Balance = () => {
     const [token1Transfer, setToken1Transfer] = useState(0)
 
     const [isDeposit, setIsDeposit] = useState(true)
-    
+
 
     const token0_balance = useSelector(state => state.balancesReducer.token0_balance)
     const token1_balance = useSelector(state => state.balancesReducer.token1_balance)
@@ -27,17 +27,17 @@ const Balance = () => {
     const withdrawRef = useRef(null)
 
     const transferHandler = (event, token) => {
-        if(token.address === token0.address) {
-            setToken0Transfer(event.target.value)   
-        }   
+        if (token.address === token0.address) {
+            setToken0Transfer(event.target.value)
+        }
         else {
-            setToken1Transfer(event.target.value)   
-        } 
+            setToken1Transfer(event.target.value)
+        }
     }
 
     const depositHandler = async (event, token) => {
         event.preventDefault() // Prevent the form from submitting and refeshing the page
-        if(token.address === token0.address) {
+        if (token.address === token0.address) {
             transferTokens(provider, exchange, 'deposit', token, token0Transfer, dispatch)
             setToken0Transfer(0) // Reset the input field
         } else {
@@ -48,7 +48,7 @@ const Balance = () => {
 
     const withdrawHandler = async (event, token) => {
         event.preventDefault() // Prevent the form from submitting and refeshing the page
-        if(token.address === token0.address) {
+        if (token.address === token0.address) {
             transferTokens(provider, exchange, 'withdraw', token, token0Transfer, dispatch)
             setToken0Transfer(0) // Reset the input field
         } else {
@@ -76,6 +76,19 @@ const Balance = () => {
         }
     }, [exchange, token0, token1, caller, transferInProgress, dispatch])
 
+    // Effect for periodic balance refresh every 10 seconds
+    useEffect(() => {
+        if (exchange && token0 && token1 && caller) {
+            // Set up interval for periodic refresh
+            const intervalId = setInterval(() => {
+                loadBalances(exchange, token0, token1, caller, dispatch)
+            }, 10000) // 10 seconds
+
+            // Clean up interval on unmount
+            return () => clearInterval(intervalId)
+        }
+    }, [exchange, token0, token1, caller, dispatch])
+
 
     return (
         <div className='component exchange__transfers'>
@@ -91,12 +104,12 @@ const Balance = () => {
 
             <div className='exchange__transfers--form'>
                 <div className='flex-between'>
-                    <p><small>Token</small><br/> {symbols && symbols[0]}</p>
-                    <p><small>Wallet</small><br/>{token0_balance}</p>
-                    <p><small>Exchange</small><br/>{exchange_token0_balance}</p>
+                    <p><small>Token</small><br /> {symbols && symbols[0]}</p>
+                    <p><small>Wallet</small><br />{token0_balance}</p>
+                    <p><small>Exchange</small><br />{exchange_token0_balance}</p>
                 </div>
 
-                <form onSubmit={(event) => {isDeposit ? depositHandler(event, token0) : withdrawHandler(event, token0) }}>
+                <form onSubmit={(event) => { isDeposit ? depositHandler(event, token0) : withdrawHandler(event, token0) }}>
                     <label htmlFor="token0"><small>{symbols && symbols[0]} Amount</small></label>
                     <input
                         type="text"
@@ -117,12 +130,12 @@ const Balance = () => {
 
             <div className='exchange__transfers--form'>
                 <div className='flex-between'>
-                <p><small>Token</small><br/> {symbols && symbols[1]}</p>
-                    <p><small>Wallet</small><br/>{token1_balance}</p>
-                    <p><small>Exchange</small><br/>{exchange_token1_balance}</p>
+                    <p><small>Token</small><br /> {symbols && symbols[1]}</p>
+                    <p><small>Wallet</small><br />{token1_balance}</p>
+                    <p><small>Exchange</small><br />{exchange_token1_balance}</p>
                 </div>
 
-                <form onSubmit={(event) => {isDeposit ? depositHandler(event, token1) : withdrawHandler(event, token1) }}>
+                <form onSubmit={(event) => { isDeposit ? depositHandler(event, token1) : withdrawHandler(event, token1) }}>
                     <label htmlFor="token1"><small>{symbols && symbols[1]} Amount</small></label>
                     <input
                         type="text"

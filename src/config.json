@@ -17,16 +17,16 @@
     },
     "11155111": {
         "exchange": {
-            "address": "0x9b37F1Cb8695E04457197aE15784a9E063AA247D"
+            "address": "0xB5B07B158F3c1B3583Aea489bc95f27ae7c087C2"
         },
         "MBTBA": {
-            "address": "0x18b0363eE9a49997DaC604693497A71d8D13210f"
+            "address": "0x8349b1D2fdcF686A2366636a1C2FBC3Db6f93EdE"
         },
         "UTMC": {
-            "address": "0x6f8629ec1cF3726D70938d0D2dD467d52391240A"
+            "address": "0x778a0E506Ebcb9d2fed0f5f5eb0fA3868453CE3b"
         },
         "LRNC": {
-            "address": "0xF02b433cB273376d655c2b5eF3C6318592428c7a"
+            "address": "0x96F1F779E96aDA0412a7FCa73cC27db7F83351Ae"
         },
         "explorerURL": "https://sepolia.etherscan.io",
         "symbol": "SepETH" 

@@ -30,14 +30,17 @@ const Alert = () => {
   } else if (isSuccessful) {
     content = <div>
       <h1>Transaction Successful</h1>
-      <a
-      href={config[chainId] ? `${config[chainId].explorerURL}/tx/${events[0].transactionHash}` : "#"}
-      target="_blank"
-      rel="noreferrer"      
-      >
-        {events[0].transactionHash.slice(0,6) + "..." + events[0].transactionHash.slice(60,66) }
-      </a>
-
+      {events && events.length > 0 ? (
+        <a
+        href={config[chainId] ? `${config[chainId].explorerURL}/tx/${events[0].transactionHash}` : "#"}
+        target="_blank"
+        rel="noreferrer"      
+        >
+          {events[0].transactionHash.slice(0,6) + "..." + events[0].transactionHash.slice(60,66) }
+        </a>
+      ) : (
+        ""
+      )}
     </div>;
   }
 

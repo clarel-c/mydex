@@ -30,7 +30,7 @@ export const myEventsSelector = createSelector(
       );
     });
     
-    console.log(events);
+    //console.log(events);
     return events;
   }
 );

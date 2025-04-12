@@ -22,7 +22,7 @@ async function main() {
   await LRNC.deployed()
   console.log(`Learn Coin deployed to: ${LRNC.address}`)
 
-  const exchange = await Exchange.deploy(accounts[1].address, 1)
+  const exchange = await Exchange.deploy(accounts[2].address, 1)
   await exchange.deployed()
   console.log(`Exchange Contract deployed to: ${exchange.address}`)
   console.log(`The fee Account is ${accounts[2].address}`)
