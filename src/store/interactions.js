@@ -174,7 +174,7 @@ export const cancelOrder = async (provider, exchange, order, dispatch) => {
         await transaction.wait()
     }
     catch (error) {
-        dispatch({ type: "cancel__order_request_failed" })
+        dispatch({ type: "cancel_order_failed" })
     }
 }
 

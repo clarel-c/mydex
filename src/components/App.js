@@ -43,6 +43,11 @@ function App() {
       window.location.reload()
     })
 
+    // Check if chainId exists in config
+    if (!config[chainId]) {
+      console.error('Network configuration not found for chainId:', chainId)
+      return
+    }
 
     //Get an instance of the MBTBA Token contract and UTMC Token contract
     const MBTBA = config[chainId].MBTBA
