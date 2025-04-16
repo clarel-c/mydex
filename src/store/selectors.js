@@ -43,7 +43,7 @@ const decorateOrder = (order, token0, token1) => {
   if (order.tokenBuy === token0.address) {
     token0Amount = ethers.utils.formatUnits(order.amountBuy, 18) // token0 is the token being bought
     token1Amount = ethers.utils.formatUnits(order.amountSell, 18) // token1 is the token being sold
-    tokenPrice = token0Amount / token1Amount // Price is obtained by dividing the amount of token0 by the amount of token1
+    tokenPrice = token1Amount / token0Amount // Price is UTMC/MBTBA for buying MBTBA with UTMC
     tokenPrice = Math.round(tokenPrice * precision) / precision // Round the price to 5 decimal places
   } else {
     token0Amount = ethers.utils.formatUnits(order.amountSell, 18) // token0 is the token being sold
